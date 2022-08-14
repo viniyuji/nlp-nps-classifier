@@ -1,10 +1,11 @@
-#%%
-import pandas as pd
-import numpy as np
-import kerastuner as kt
+#%% 
 import tensorflow as tf
 import tensorflow_hub as hub
 import tensorflow_text as text
+import pandas as pd
+import numpy as np
+import sqlalchemy
+import kerastuner as kt
 from tensorflow.keras import layers
 from tensorflow.keras.layers import Layer
 from sklearn.model_selection import train_test_split
@@ -12,6 +13,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix as confmat
 from sklearn.metrics import recall_score
 from tensorflow import keras
+
 
 def CleanData(data):
     for i in range(len(data.cluster)):
@@ -53,7 +55,8 @@ def BuildClassifierModel(hp):
     return model
 
 #%% Preparar os dados
-train_data = pd.read_csv(r'Insert path to Data.csv here')
+
+train_data = pd.read_csv(r'C:\Users\DNC-PC-128\Desktop\NPS\DADOS_V5.csv')
 
 CleanData(train_data)
 cluster_to_int = pd.DataFrame({'cluster': train_data.cluster.unique(), 'value': range(len(train_data.cluster.unique()))})
@@ -72,7 +75,7 @@ y_test = y_test.to_numpy(dtype='int16')
 
 x = np.concatenate((x_train, x_test))
 y = np.concatenate((y_train, y_test))
-del x_train, x_test, y_train, y_test, train_data
+del train_data
 
 #%% Otimizar o modelo
 tuner = kt.Hyperband(BuildClassifierModel,
@@ -96,9 +99,23 @@ val_acc_per_epoch = history.history['val_accuracy']
 best_epoch = val_acc_per_epoch.index(max(val_acc_per_epoch)) + 1
 
 #%% Reinstanciar o hipermodelo e treiná-lo com o número ideal de épocas
+
 hypermodel = tuner.hypermodel.build(best_hps)
 
-hypermodel.fit(x, y, epochs=best_epoch, validation_split=0.2)
+hypermodel.fit(x_train, y_train, epochs=best_epoch)
 
-eval_result = hypermodel.evaluate(img_test, label_test)
-print("[test loss, test accuracy]:", eval_result)
+y_hat = hypermodel.predict(x_test)
+y_hat = pd.DataFrame(y_hat)
+y_hat["result"]=np.nan
+y_hat["result"] = y_hat.idxmax(axis=1)
+y_hat["real"] = y_test
+
+print(accuracy_score(y_hat.real, y_hat.result))
+print(confmat(y_hat.real, y_hat.result))
+
+# Futuramente:
+#   Empacotar o hypermodel em uma função Hypermodel()
+#   Criar um outro arquivo .py para:
+#       importar a função Hypermodel
+#       importar os dados do banco e passar pelo modelo
+#       disponibilizar isso em uma rota que instancia o banco
