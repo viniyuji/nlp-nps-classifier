@@ -1,1 +1,1 @@
-# NPS Comment's Auto Classifier
+# NPS Comment's Automatic Classifier
