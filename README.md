@@ -1,5 +1,5 @@
 ## NPS Comment's Automatic Classifier
-A Neural Network model to classify NPS comments in 5 categories:
+A BERT Neural Network model made to classify NPS comments in 5 categories:
 - Slot
 - Day
 - Projeto
