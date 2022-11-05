@@ -4,13 +4,13 @@ import tensorflow_hub as hub
 import tensorflow_text as text
 import pandas as pd
 import numpy as np
-import kerastuner as kt
-from tensorflow.keras import layers
-from tensorflow.keras.layers import Layer
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
+import keras_tuner as kt
+# from tensorflow.keras import layers
+# from tensorflow.keras.layers import Layer
+# from sklearn.model_selection import train_test_split
+# from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix as confmat
-from sklearn.metrics import recall_score
+# from sklearn.metrics import recall_score
 from tensorflow import keras
 
 def CleanData(data):
@@ -65,7 +65,7 @@ def BuildClassifierModel(hp):
 
 
 def main():
-    data = pd.read_csv(r'C:\Users\DNC-PC-128\Desktop\NPS\DADOS_V5.csv')
+    data = pd.read_csv(r'.\data.csv')
     x,y = CleanData(data)
     del data
     
